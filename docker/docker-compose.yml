@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  plexboxd:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    container_name: plexboxd
+    env_file:
+      - ../.env
+    ports:
+      - "${PORT:-8089}:8089"
+    volumes:
+      - plexboxd-data:/data
+    restart: unless-stopped
+volumes:
+  plexboxd-data:
