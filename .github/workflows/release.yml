@@ -1,4 +1,4 @@
-name: Build & Release Plexboxd
+name: Build & Release WatchWeave
 
 on:
   push:
@@ -43,19 +43,19 @@ jobs:
       - name: Build and push Docker image
         run: |
           echo "Building Docker image using docker/Dockerfile"
-          echo "Tagging image as nate8727/plexboxd:$TAG_NAME and latest"
-          docker build -f docker/Dockerfile -t nate8727/plexboxd:$TAG_NAME -t nate8727/plexboxd:latest .
-          docker push nate8727/plexboxd:$TAG_NAME
-          docker push nate8727/plexboxd:latest
+          echo "Tagging image as nate8727/watchweave:$TAG_NAME and latest"
+          docker build -f docker/Dockerfile -t nate8727/watchweave:$TAG_NAME -t nate8727/watchweave:latest .
+          docker push nate8727/watchweave:$TAG_NAME
+          docker push nate8727/watchweave:latest
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.TAG_NAME }}
-          name: "Plexboxd ${{ env.TAG_NAME }}"
+          name: "WatchWeave ${{ env.TAG_NAME }}"
           body: |
             🧱 **Build:** ${{ env.TAG_NAME }}
-            🐳 **Docker:** nate8727/plexboxd:${{ env.TAG_NAME }}
+            🐳 **Docker:** nate8727/watchweave:${{ env.TAG_NAME }}
             📅 Released automatically from workflow run [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
             ---
