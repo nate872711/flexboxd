@@ -3,7 +3,7 @@
 
 Plexboxd is a lightweight Flask webhook service that listens to **Tautulli playback events** and logs completed Plex watches as **Letterboxd diary entries (CSV)**.
 
-> Visual assets will be added later in `branding/`.
+
 
 ## Features
 - Auto-logs completed **movies** from Tautulli webhooks
