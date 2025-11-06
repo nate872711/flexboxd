@@ -1,3 +1,6 @@
+<img src="/branding/plexboxd-logo.png" width="160" height="160">
+
+
 # 🍿 Plexboxd
 **Your Plex movies, your Letterboxd diary — finally in sync.**
 
