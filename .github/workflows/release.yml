@@ -1,38 +1,23 @@
-name: 🚀 Build & Release Plexboxd
+name: Build & Release Plexboxd
 
 on:
   push:
-    branches:
-      - main
-      - master
-    tags-ignore:
-      - 'v*'
+    branches: [ "main" ]
   workflow_dispatch:
-    inputs:
-      release_version:
-        description: "Manual release version (e.g. v1.2.3)"
-        required: false
-        default: ""
 
 permissions:
   contents: write
   packages: write
 
-env:
-  IMAGE_NAME: nate8727/plexboxd
-  PYTHON_VERSION: "3.12"
-
 jobs:
-  build-and-push:
-    name: 🐳 Build & Push Docker image
+  build-and-release:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Set up QEMU (for multi-arch builds)
-        uses: docker/setup-qemu-action@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -43,56 +28,41 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Extract version from inputs or generate date tag
-        id: version
-        run: |
-          if [ -n "${{ github.event.inputs.release_version }}" ]; then
-            echo "version=${{ github.event.inputs.release_version }}" >> $GITHUB_OUTPUT
-          else
-            echo "version=v$(date +'%Y.%m.%d')" >> $GITHUB_OUTPUT
-          fi
-          echo "Release version: ${{ steps.version.outputs.version }}"
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/Dockerfile
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: |
-            ${{ env.IMAGE_NAME }}:latest
-            ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
-          build-args: |
-            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
-
-      - name: Generate changelog
-        id: changelog
-        run: |
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          git log -1 --pretty=format:"%s%n%n%b" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Create Git tag
+      - name: Create unique Git tag
+        id: tag
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag ${{ steps.version.outputs.version }}
-          git push origin ${{ steps.version.outputs.version }}
+          DATE_TAG="v$(date +'%Y.%m.%d')"
+          BUILD_TAG="${DATE_TAG}.${{ github.run_number }}"
+          echo "TAG_NAME=$BUILD_TAG" >> $GITHUB_ENV
+          echo "Creating tag: $BUILD_TAG"
+          git tag "$BUILD_TAG"
+          git push origin "$BUILD_TAG"
+
+      - name: Build and push Docker image
+        run: |
+          echo "Building image with tag: $TAG_NAME"
+          docker build -t nate8727/plexboxd:$TAG_NAME -t nate8727/plexboxd:latest .
+          docker push nate8727/plexboxd:$TAG_NAME
+          docker push nate8727/plexboxd:latest
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.version.outputs.version }}
-          name: "Plexboxd ${{ steps.version.outputs.version }}"
+          tag_name: ${{ env.TAG_NAME }}
+          name: "Plexboxd ${{ env.TAG_NAME }}"
           body: |
-            🧩 **Plexboxd Release** ${{ steps.version.outputs.version }}
+            🧱 **Build:** ${{ env.TAG_NAME }}
+            🐳 **Docker:** nate8727/plexboxd:${{ env.TAG_NAME }}
+            📅 Released automatically from workflow run [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
-            - Docker image: `${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}`
-            - Build date: $(date -u)
-            - Commit: ${{ github.sha }}
-
-            **Changes:**
-            ${{ steps.changelog.outputs.changelog }}
+            ---
+            ### 🔧 What's Included
+            - Auto-generated tag from GitHub Actions
+            - Docker image pushed to Docker Hub
+            - CI/CD pipeline version alignment
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
