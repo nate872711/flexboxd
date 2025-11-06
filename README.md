@@ -15,6 +15,11 @@ Plexboxd is a lightweight Flask webhook service that listens to **Tautulli playb
 - Dedupes recent plays and detects rewatches
 - Docker-ready and configurable via `.env`
 
+## Future Improvements
+- Trakt Syncing
+- imdb Syncing
+- Collections, Lists & Watchlists Syncing
+
 ## Quick start (Docker)
 ```bash
 cp .env.example .env
