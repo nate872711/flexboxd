@@ -1,54 +1,39 @@
+version: "3.9"
 services:
   watchweave:
     image: nate8727/watchweave:latest
-    container_name: watchweave
     restart: unless-stopped
-    ports:
-      - "8089:8089"
-
     environment:
-      # 🌍 General
-      - TZ=Etc/UTC #Timezone=America/Chicago
-      - LOG_LEVEL=INFO
-
-      # 🎬 Plex
-      - PLEX_ENABLED=true
-      - PLEX_SERVER_URL=http://plex.local:32400
-      - PLEX_TOKEN=YOUR_PLEX_TOKEN
-      - PLEX_USERNAME=YOUR_PLEX_USERNAME
-
-      # 📈 Tautulli
-      - TAUTULLI_ENABLED=true
-      - TAUTULLI_API_URL=http://tautulli.local:8181/api/v2
-      - TAUTULLI_API_KEY=YOUR_TAUTULLI_API_KEY
-
-      # 🎞️ Trakt
-      - TRAKT_ENABLED=true
-      - TRAKT_CLIENT_ID=YOUR_TRAKT_CLIENT_ID
-      - TRAKT_CLIENT_SECRET=YOUR_TRAKT_CLIENT_SECRET
-      - TRAKT_ACCESS_TOKEN=YOUR_TRAKT_ACCESS_TOKEN
-      - TRAKT_REFRESH_TOKEN=YOUR_TRAKT_REFRESH_TOKEN
-
-      # 🎥 Letterboxd
-      - LETTERBOXD_ENABLED=true
-      - LETTERBOXD_USERNAME=YOUR_LETTERBOXD_USERNAME
-      - LETTERBOXD_PASSWORD=YOUR_LETTERBOXD_PASSWORD
-
-      # 🎬 IMDb
-      - IMDB_ENABLED=true
-      - IMDB_CSV_PATH=/config/imdb_ratings.csv
-
-      # 🔄 Sync
-      - SYNC_INTERVAL_MINUTES=30
-      - SYNC_DIRECTION=plex->trakt,letterboxd,imdb
-
+      TZ: Etc/UTC
+      LOG_LEVEL: INFO
+      SYNC_INTERVAL_MINUTES: 30
+      SYNC_DIRECTION: "plex->trakt,letterboxd,imdb"
+      PLEX_ENABLED: true
+      PLEX_SERVER_URL: "http://plex.local:32400"
+      PLEX_TOKEN: ""
+      TAUTULLI_ENABLED: false
+      TAUTULLI_API_URL: ""
+      TAUTULLI_API_KEY: ""
+      TRAKT_ENABLED: true
+      TRAKT_CLIENT_ID: ""
+      TRAKT_CLIENT_SECRET: ""
+      TRAKT_ACCESS_TOKEN: ""
+      TRAKT_REFRESH_TOKEN: ""
+      LETTERBOXD_ENABLED: false
+      LETTERBOXD_USERNAME: ""
+      LETTERBOXD_PASSWORD: ""
+      IMDB_ENABLED: false
+      IMDB_CSV_PATH: "/config/imdb_ratings.csv"
+      TVDB_ENABLED: false
+      TVDB_API_KEY: ""
+      TVDB_PIN: ""
+      SERIALIZD_ENABLED: false
+      SERIALIZD_API_KEY: ""
+      MUSICBOARD_ENABLED: false
+      MUSICBOARD_USERNAME: ""
+      MUSICBOARD_API_KEY: ""
+      TMDB_ENABLED: false
+      TMDB_API_KEY: ""
+      CUSTOM_LISTS_ENABLED: false
     volumes:
       - ./config:/config
-      - ./logs:/logs
-
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8089/health || exit 1"]
-      interval: 60s
-      timeout: 10s
-      retries: 3
-      start_period: 20s
