@@ -68,48 +68,45 @@ cd watchweave
 ```yaml
 services:
   watchweave:
-    container_name: watchweave
     image: nate8727/watchweave:latest
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
+    container_name: watchweave
     restart: unless-stopped
-    environment:
-      # Core configuration
-      - TZ=UTC
-      - PLEX_BASE_URL=${PLEX_BASE_URL}
-      - PLEX_TOKEN=${PLEX_TOKEN}
-
-      # Letterboxd CSV sync
-      - CSV_PATH=${CSV_PATH:-/config/letterboxd_diary.csv}
-      - DEDUPE_DAYS=${DEDUPE_DAYS:-2}
-      - MIN_PERCENT=${MIN_PERCENT:-85}
-
-      # Trakt integration
-      - TRAKT_CLIENT_ID=${TRAKT_CLIENT_ID}
-      - TRAKT_CLIENT_SECRET=${TRAKT_CLIENT_SECRET}
-      - TRAKT_ACCESS_TOKEN=${TRAKT_ACCESS_TOKEN}
-      - TRAKT_REDIRECT_URI=${TRAKT_REDIRECT_URI}
-      - ENABLE_TRAKT_SYNC=${ENABLE_TRAKT_SYNC:-true}
-
-      # IMDb integration
-      - IMDB_RATINGS_CSV=${IMDB_RATINGS_CSV:-/config/imdb/ratings.csv}
-      - IMDB_WATCHLIST_CSV=${IMDB_WATCHLIST_CSV:-/config/imdb/watchlist.csv}
-      - ENABLE_WATCHLIST_SYNC=${ENABLE_WATCHLIST_SYNC:-true}
-      - ENABLE_COLLECTION_SYNC=${ENABLE_COLLECTION_SYNC:-true}
-
-      # Optional webhook notifications
-      - WEBHOOK_URL=${WEBHOOK_URL:-}
-
-    volumes:
-      - ./data:/config
     ports:
       - "8089:8089"
-    command: >
-      bash -c "
-        echo 'Starting WatchWeave sync service...';
-        python -m src.main
-      "
+    environment:
+      # 🌐 General
+      - TZ=Etc/UTC
+      - LOG_LEVEL=INFO
+
+      # 🎬 Plex
+      - PLEX_ENABLED=true
+      - PLEX_SERVER_URL=http://plex.local:32400
+      - PLEX_TOKEN=YOUR_PLEX_TOKEN
+      - PLEX_USERNAME=YOUR_PLEX_USERNAME
+
+      # 🎞️ Letterboxd
+      - LETTERBOXD_ENABLED=true
+      - LETTERBOXD_USERNAME=YOUR_LETTERBOXD_USERNAME
+      - LETTERBOXD_PASSWORD=YOUR_LETTERBOXD_PASSWORD
+
+      # 📺 Trakt
+      - TRAKT_ENABLED=true
+      - TRAKT_CLIENT_ID=YOUR_TRAKT_CLIENT_ID
+      - TRAKT_CLIENT_SECRET=YOUR_TRAKT_CLIENT_SECRET
+      - TRAKT_ACCESS_TOKEN=YOUR_TRAKT_ACCESS_TOKEN
+      - TRAKT_REFRESH_TOKEN=YOUR_TRAKT_REFRESH_TOKEN
+
+      # 🎥 IMDb
+      - IMDB_ENABLED=true
+      - IMDB_CSV_PATH=/config/imdb_ratings.csv
+
+      # 🔄 Sync
+      - SYNC_INTERVAL_MINUTES=30
+      - SYNC_DIRECTION=plex->trakt,letterboxd,imdb
+
+    volumes:
+      - ./config:/config
+      - ./logs:/logs
 ```
 ## ⚙️ Setup Guide
 
