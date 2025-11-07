@@ -59,10 +59,7 @@ It syncs your watched movies and shows, updates your Letterboxd diary, manages w
 ---
 
 ## Quick start (Docker)
-```bash
-cp .env.example .env
-docker compose -f docker/docker-compose.yml up -d --build
-```
+
 ### Clone the Repository
 ```bash
 git clone https://github.com/nate872711/watchweave.git
