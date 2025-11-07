@@ -133,9 +133,9 @@ If you’d like to contribute:
 
 ## 📅 Versioning & Planning
 Planned for future milestones:
-- **v1.1.0:** Add incremental sync + SQLite cache  
-- **v1.2.0:** Introduce Web UI dashboard  
-- **v1.3.0:** Plugin framework & REST API  
+- **vTBD:** Add incremental sync + SQLite cache  
+- **vTBD:** Introduce Web UI dashboard  
+- **vTBD:** Plugin framework & REST API  
 
 ---
 
