@@ -25,13 +25,16 @@ It syncs your watched movies and shows, updates your Letterboxd diary, manages w
 
 ## 🚀 Features
 
-- ✅ Sync **watched status** across Plex, Trakt, and Letterboxd  
-- ✅ Import **IMDb ratings** directly from your exported CSV  
-- ✅ Optional **Tautulli** integration for richer playback data  
-- ✅ Auto-generates `/config/config.yml` from environment variables  
-- ✅ Graceful fallback to Plex-only mode if Tautulli unavailable  
-- ✅ Built-in Trakt token refresh  
-- ✅ Clear sync summaries in logs after every cycle  
+- 🔄 **Automatic synchronization** between Plex, Trakt, Letterboxd, IMDb, and more
+- 🧠 Smart merging of watch history, ratings, lists, and collections
+- 🏗 **Auto-generates `config.yml`** dynamically from Docker environment variables --- no manual setup required
+- 🕒 Configurable sync intervals and direction (e.g., Plex → Trakt, or bidirectional)
+- 🐳 Fully Dockerized with minimal configuration
+- 🔐 Secure token handling and optional OAuth2-based login system
+- 🧩 Modular design --- ready for plugin-based expansions and future integrations
+- 📈 **Web dashboard (planned)** on port **8089** for real-time sync logs, manual triggers, and system overview<br>  → Currently reserved; dashboard service will be enabled in an upcoming release
+- 🧾 Detailed logs saved to `/logs` for tracking and diagnostics
+- 🧰 Cross-platform support for Linux, macOS, and Windows
 
 ---
 
