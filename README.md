@@ -139,7 +139,7 @@ services:
 
 ## ⚙️ Setup Guide
 
-### 🎬 Plex
+### <img src="/src/assets/plex-icon.png" width="20"> Plex
 1. [Sign in to your Plex account](https://support.plex.tv/articles/200933616-plex-account/) in Plex Web App  
 2. Browse to a library item and [view the XML](https://support.plex.tv/articles/201998867-investigate-media-information-and-formats/) for it
 3. Look in the URL and find the token as the **X-Plex-Token** value
@@ -156,7 +156,7 @@ services:
 
 ---
 
-### 📈 Tautulli (Optional)
+### <img src="/src/assets/tautulli-icon.png" width="20"> Tautulli (Optional)
 1. Open your Tautulli web interface → Settings → Web Interface → API Key  
 2. Copy your key and URL:
    ```bash
@@ -167,7 +167,7 @@ services:
 
 ---
 
-### 🎥 Letterboxd
+### <img src="/src/assets/letterboxd-icon.png" width="20"> Letterboxd
 1. Supply your **username** and **password** for watchlist and list syncing:
    ```bash
    LETTERBOXD_ENABLED=true
@@ -177,7 +177,7 @@ services:
 
 ---
 
-### 🎞️ Trakt.tv
+### <img src="/src/assets/Trakt.tv-icon.png" width="20"> Trakt.tv
 1. Go to [https://trakt.tv/oauth/applications](https://trakt.tv/oauth/applications)  
 2. Create a new application using:
    - **Redirect URI:** `urn:ietf:wg:oauth:2.0:oob`  
@@ -198,7 +198,7 @@ services:
 
 ---
 
-### ⭐ IMDb
+### <img src="/src/assets/imdb-icon.png" width="20"> IMDb
 1. Visit your IMDb ratings page and click **Export**.  
 2. Save the CSV as `imdb_ratings.csv` in your `/config` folder.  
 3. Set:
