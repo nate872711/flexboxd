@@ -1,5 +1,8 @@
 services:
   watchweave:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
     image: nate8727/watchweave:latest
     container_name: watchweave
     restart: unless-stopped
