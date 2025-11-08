@@ -1,62 +1,56 @@
-# ============================================================
-# 🐳 WatchWeave - Unified Media Sync Service
-# ============================================================
+# ──────────────────────────────────────────────
+#   WatchWeave Dockerfile
+#   Maintained for Python 3.11+
+# ──────────────────────────────────────────────
 
-FROM python:3.12-slim AS base
+FROM python:3.11-slim
 
-# Prevent Python from writing .pyc files and buffer logs
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
+# Prevent Python from writing .pyc files and buffering stdout
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
+# Create application directory
 WORKDIR /app
 
-# ------------------------------------------------------------
-# Install dependencies
-# ------------------------------------------------------------
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# ──────────────────────────────────────────────
+#   Install required system dependencies
+# ──────────────────────────────────────────────
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        curl \
+        wget \
+        tzdata \
+        && rm -rf /var/lib/apt/lists/*
 
-# ------------------------------------------------------------
-# Copy application files
-# ------------------------------------------------------------
-COPY src/ ./src/
-COPY scripts/ ./scripts/
+# ──────────────────────────────────────────────
+#   Copy application files
+# ──────────────────────────────────────────────
+COPY src/ /app/src/
+COPY requirements.txt /app/
 
-# Ensure /config and /logs directories exist
+# ──────────────────────────────────────────────
+#   Install Python dependencies
+# ──────────────────────────────────────────────
+# Make sure PyYAML and other core libraries are present
+RUN pip install --no-cache-dir -r requirements.txt || \
+    pip install --no-cache-dir pyyaml requests python-dotenv rich
+
+# ──────────────────────────────────────────────
+#   Create config and log directories
+# ──────────────────────────────────────────────
 RUN mkdir -p /config /logs
 
-# ------------------------------------------------------------
-# Entrypoint Script
-# ------------------------------------------------------------
-# The entrypoint runs a tiny bootstrap to:
-#   1. Check if /config/config.yml exists
-#   2. Auto-generate it from environment variables if missing
-#   3. Start the WatchWeave service
+# ──────────────────────────────────────────────
+#   Set timezone environment variable (overridable)
+# ──────────────────────────────────────────────
+ENV TZ=Etc/UTC
 
-RUN echo '#!/usr/bin/env bash\n' \
-    'set -e\n' \
-    'if [ ! -f "/config/config.yml" ]; then\n' \
-    '  echo "🧩 No config.yml found — generating from environment variables..."\n' \
-    '  python -c "from src.config_loader import generate_config_from_env; generate_config_from_env()"\n' \
-    '  echo "✅ Config file created at /config/config.yml"\n' \
-    'else\n' \
-    '  echo "✅ Using existing config.yml"\n' \
-    'fi\n' \
-    'echo "🚀 Starting WatchWeave..."\n' \
-    'exec python -m src.main\n' \
-    > /entrypoint.sh && chmod +x /entrypoint.sh
-
-ENTRYPOINT ["/entrypoint.sh"]
-
-# ------------------------------------------------------------
-# Expose the web UI port
-# ------------------------------------------------------------
+# ──────────────────────────────────────────────
+#   Expose default internal port
+# ──────────────────────────────────────────────
 EXPOSE 8089
 
-# ------------------------------------------------------------
-# Metadata
-# ------------------------------------------------------------
-LABEL org.opencontainers.image.title="WatchWeave" \
-      org.opencontainers.image.description="Media sync tool for Plex, Trakt, Letterboxd, and IMDb" \
-      org.opencontainers.image.source="https://github.com/nate872711/watchweave" \
-      org.opencontainers.image.licenses="MIT"
+# ──────────────────────────────────────────────
+#   Define entrypoint
+# ──────────────────────────────────────────────
+CMD ["python", "-u", "/app/src/main.py"]
