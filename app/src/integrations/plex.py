@@ -1,24 +1,25 @@
-import logging, requests
-from .utils import extract_imdb_id_from_guid
+from plexapi.server import PlexServer
+from rich import print
 
-def _headers(token): return {'X-Plex-Token': token} if token else {}
 
-def get_plex_watched(config):
-    plex = config.get('plex',{})
-    if not plex.get('enabled'): return []
-    token, server = plex.get('token'), plex.get('server_url')
-    if not token or not server:
-        logging.warning('Plex missing config'); return []
-    try:
-        url = f"{server}/library/all?type=1&viewCount%3E=1"
-        r = requests.get(url, headers=_headers(token), timeout=15); items = []
-        try: items = r.json().get('MediaContainer',{}).get('Metadata',[])
-        except Exception: items = []
-        movies = []
-        for i in items:
-            imdb = extract_imdb_id_from_guid(i.get('guid',''))
-            movies.append({'title': i.get('title'), 'year': i.get('year'), 'imdb': imdb, 'ratingKey': i.get('ratingKey')})
-        logging.info('Plex watched parsed: %s', len(movies))
-        return movies
-    except Exception as e:
-        logging.warning('Plex fetch error: %s', e); return []
+class PlexClient:
+    def __init__(self, server_url: str, token: str, username: str = ""):
+        self.server_url = server_url
+        self.token = token
+        self.username = username
+        self.plex = None
+
+        try:
+            self.plex = PlexServer(self.server_url, self.token)
+            print("[green]Connected to Plex Server")
+        except Exception as e:
+            print(f"[red]Failed to connect to Plex: {e}")
+
+    def get_watched(self):
+        """Get all watched media from Plex."""
+        try:
+            history = self.plex.history()
+            return history
+        except Exception as e:
+            print(f"[red]Plex watched history error: {e}")
+            return []
