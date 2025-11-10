@@ -4,7 +4,7 @@ from rich.console import Console
 
 from config_loader import load_config, generate_config_from_env
 
-# Integrations
+# Integration clients
 from integrations.plex import PlexClient
 from integrations.trakt import TraktClient
 from integrations.letterboxd import LetterboxdClient
@@ -14,15 +14,15 @@ from integrations.serializd import SerializdClient
 from integrations.musicboard import MusicboardClient
 from integrations.tmdb import TMDbClient
 
+from sync_engine import SyncEngine
+
 console = Console()
 log = logging.getLogger("watchweave")
-
-services = {}   # Holds active integration clients
+services = {}  # active clients
 
 
 async def initialize_services(config):
-    """Initialize all enabled integrations."""
-
+    """Init enabled integrations and stash in the global `services` dict."""
     # Plex
     if config["plex"]["enabled"]:
         services["plex"] = PlexClient(
@@ -80,42 +80,43 @@ async def initialize_services(config):
         )
         console.print("[green]✔ Musicboard enabled")
 
-    # TMDB
+    # TMDb
     if config["tmdb"]["enabled"]:
         services["tmdb"] = TMDbClient(api_key=config["tmdb"]["api_key"])
         console.print("[green]✔ TMDb enabled")
 
-    console.print("[bold green]All integrations initialized.\n")
+    console.print("[bold green]All enabled integrations initialized.\n")
 
 
-async def sync_loop(config):
-    """Repeatedly runs sync tasks at the configured interval."""
-    interval = config["general"]["sync_interval_minutes"]
+async def run_scheduler(config):
+    """Simple interval loop that triggers SyncEngine.sync_all()."""
+    interval = int(config["general"]["sync_interval_minutes"])
+    engine = SyncEngine(services, config)
 
     console.print(f"[cyan]🔁 Sync interval: every {interval} minutes")
-
     while True:
-        console.print("[yellow]Running sync cycle...")
-        # TODO: Insert real syncing logic here.
+        console.print("[yellow]▶ Running sync cycle…")
+        try:
+            await engine.sync_all()
+            console.print("[green]✓ Sync cycle finished")
+        except Exception as e:
+            log.exception(f"Sync cycle failed: {e}")
         await asyncio.sleep(interval * 60)
 
 
 async def main():
-    # Load config file or auto-generate from environment
-    config = load_config()
-    if not config:
-        config = generate_config_from_env()
+    cfg = load_config()
+    if not cfg:
+        cfg = generate_config_from_env()
 
-    # Update logging level
     logging.basicConfig(
-        level=config["general"]["log_level"],
-        format="%(asctime)s | %(levelname)s | %(message)s"
+        level=cfg["general"]["log_level"],
+        format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
     )
 
     console.print("[bold blue]🚀 Starting WatchWeave...\n")
-
-    await initialize_services(config)
-    await sync_loop(config)
+    await initialize_services(cfg)
+    await run_scheduler(cfg)
 
 
 if __name__ == "__main__":
