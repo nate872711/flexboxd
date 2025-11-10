@@ -1,6 +1,7 @@
+import logging
 from plexapi.server import PlexServer
-from rich import print
 
+log = logging.getLogger("plex")
 
 class PlexClient:
     def __init__(self, server_url: str, token: str, username: str = ""):
@@ -11,15 +12,17 @@ class PlexClient:
 
         try:
             self.plex = PlexServer(self.server_url, self.token)
-            print("[green]Connected to Plex Server")
+            log.info("Connected to Plex Server")
         except Exception as e:
-            print(f"[red]Failed to connect to Plex: {e}")
+            log.exception(f"Failed to connect to Plex: {e}")
 
     def get_watched(self):
-        """Get all watched media from Plex."""
+        """Return Plex watch history (list of Video objects)."""
+        if not self.plex:
+            log.warning("Plex client not initialized")
+            return []
         try:
-            history = self.plex.history()
-            return history
+            return self.plex.history() or []
         except Exception as e:
-            print(f"[red]Plex watched history error: {e}")
+            log.exception(f"Plex history error: {e}")
             return []
