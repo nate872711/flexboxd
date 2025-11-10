@@ -15,8 +15,10 @@ COPY ./app/src /app/src
 COPY ./requirements.txt /app/requirements.txt
 
 # Install dependencies
-RUN pip install --no-cache-dir -r /app/requirements.txt || \
-    pip install --no-cache-dir pyyaml requests python-dotenv rich
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# Just in case requirements.txt is missing anything critical:
+RUN pip install --no-cache-dir pyyaml requests python-dotenv rich
 
 # Create config + logs folders
 RUN mkdir -p /config /logs
