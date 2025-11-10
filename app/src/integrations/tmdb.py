@@ -1,15 +1,18 @@
+import logging
 import tmdbsimple as tmdb
-from rich import print
 
+log = logging.getLogger("tmdb")
 
 class TMDbClient:
     def __init__(self, api_key: str):
         tmdb.API_KEY = api_key
-        self.api = tmdb
+        log.info("TMDb client initialized")
 
-        print("[green]TMDb client ready")
-
-    def search_movie(self, query):
-        search = self.api.Search()
-        response = search.movie(query=query)
-        return response.get("results", [])
+    def search_movie(self, query: str):
+        try:
+            s = tmdb.Search()
+            result = s.movie(query=query) or {}
+            return result.get("results", [])
+        except Exception as e:
+            log.exception(f"TMDb search error: {e}")
+            return []
