@@ -106,7 +106,11 @@ services:
       ##############################################################
       # 🎬 PLEX
       ##############################################################
+      # By default, this works on macOS/Windows with Docker Desktop.
+      # On Linux hosts, replace with the host IP (e.g., http://192.168.1.100:32400)
+      # Or set PLEX_REMOTE_URL to override from the environment.
       PLEX_ENABLED: true
+      PLEX_SERVER_URL: "${PLEX_REMOTE_URL:-http://host.docker.internal:32400}"
       PLEX_SERVER_URL: "http://plex.local:32400"
       PLEX_TOKEN: ""
       PLEX_USERNAME: ""
@@ -183,7 +187,6 @@ services:
 # networks:
 #   plexnet:
 #     driver: bridge
-
 ```
 ---
 
@@ -201,6 +204,8 @@ services:
 ## ⚙️ Setup Guide
 
 ### <img src="app/src/assets/plex-icon.png" width="20"> Plex
+****
+#### **🔐 Plex Token Setup**
 1. [Sign in to your Plex account](https://support.plex.tv/articles/200933616-plex-account/) in Plex Web App  
 2. Browse to a library item and [view the XML](https://support.plex.tv/articles/201998867-investigate-media-information-and-formats/) for it
 3. Look in the URL and find the token as the `X-Plex-Token` value
@@ -211,7 +216,32 @@ services:
    PLEX_SERVER_URL=http://your-plex-ip:32400
    PLEX_TOKEN=your-plex-token
    ```
+****
+#### 🖥️ Local Plex (macOS or Windows Desktop App)
+```yaml
+PLEX_SERVER_URL: "http://host.docker.internal:32400"
+````
+✅ This works automatically on **macOS** and **Windows**.
 
+No extra configuration or port forwarding required.
+
+****
+#### 🧩 Linux Host or Remote Plex Server
+
+If Plex runs on another device (e.g., NAS, Linux box, or another computer on your network),
+set the IP address or hostname of that machine instead:
+
+```yaml
+PLEX_SERVER_URL: "http://192.168.1.25:32400"
+```
+
+Make sure:
+
+-   Plex Remote Access is enabled (Settings → Remote Access)
+
+-   Port **32400** is open on your network or forwarded correctly
+
+  
 > 💡 Tip: WatchWeave works fine even without Tautulli — it just uses Plex history directly.
 
 
